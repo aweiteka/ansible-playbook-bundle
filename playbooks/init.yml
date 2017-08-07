@@ -1,0 +1,9 @@
+- name: Initialize a directory for a new APB
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars_files:
+    - roles/init/defaults/provision.yml
+    - roles/init/defaults/deprovision.yml
+  roles:
+  - role: init

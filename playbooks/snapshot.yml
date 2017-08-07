@@ -1,0 +1,14 @@
+- name: Snapshot an application running in OpenShift
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  vars_files:
+    - roles/init/defaults/provision.yml
+    - roles/init/defaults/deprovision.yml
+    - roles/snapshot/defaults/provision.yml
+    - roles/snapshot/defaults/deprovision.yml
+  roles:
+  - role: ansible.kubernetes-modules
+    install_python_requirements: no
+  - role: snapshot
+  - role: init

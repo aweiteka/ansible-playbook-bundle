@@ -1,0 +1,40 @@
+---
+- name: Create target directories
+  file:
+    path: "{{ project_dir }}/{{ item }}"
+    state: directory
+    force: "{{ overwrite_existing_files }}"
+  with_items:
+    - roles/provision/tasks
+    - roles/provision/files
+    - roles/deprovision/tasks
+    - roles/bind/tasks
+    - roles/unbind/tasks
+    - playbooks
+- name: Write out apb.yml
+  template:
+    src: roles/init/files/apb.yml.j2
+    dest: "{{ project_dir }}/apb.yml"
+    force: "{{ overwrite_existing_files }}"
+- name: Write out Dockerfile
+  template:
+    src: roles/init/files/Dockerfile.j2
+    dest: "{{ project_dir }}/Dockerfile"
+    force: "{{ overwrite_existing_files }}"
+- name: Write out ansible tasks
+  template:
+    src: "roles/init/files/{{ item }}.yml.j2"
+    dest: "{{ project_dir }}/roles/{{ item }}/tasks/main.yml"
+    force: "{{ overwrite_existing_files }}"
+  with_items:
+    - provision
+    - deprovision
+    - bind
+    - unbind
+
+# looks like there's a character in the makefile template that ansible doesn't like
+#- name: Write out example Makefile
+#  template:
+#    src: roles/init/files/Makefile.j2
+#    dest: "{{ project_dir }}/Makefile"
+#    force: "{{ overwrite_existing_files }}"

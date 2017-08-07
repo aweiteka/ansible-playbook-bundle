@@ -1,0 +1,21 @@
+provision_dc_file: "{{ project_dir }}/roles/provision/files/dc.yaml"
+provision_svc_file: "{{ project_dir }}/roles/provision/files/svc.yaml"
+provision_route_file: "{{ project_dir }}/roles/provision/files/route.yaml"
+deployment_module: |
+        - name: {{ name }}
+          openshift_v1_deployment_config:
+            namespace: {{ namespace }}
+            src: "{{ provision_dc_file }}"
+            state: present
+service_module: |
+        - name: {{ name }}
+          k8s_v1_service:
+            namespace: {{ namespace }}
+            src: "{{ provision_svc_file }}"
+            state: present
+route_module: |
+        - name: {{ name }}
+          openshift_v1_route:
+            namespace: {{ namespace }}
+            src: "{{ provision_route_file }}"
+            state: present

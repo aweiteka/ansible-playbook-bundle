@@ -1,0 +1,7 @@
+openshift_objects:
+  - dc
+  - svc
+  - route
+  - template
+template_name: "{{ name }}"
+template_namespace: openshift

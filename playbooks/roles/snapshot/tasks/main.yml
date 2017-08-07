@@ -1,0 +1,82 @@
+---
+- name: Create target directories
+  file:
+    path: "{{ project_dir }}/{{ item }}"
+    state: directory
+    force: "{{ overwrite_existing_files }}"
+  with_items:
+    - roles/provision/tasks
+    - roles/provision/files
+    - roles/deprovision/tasks
+    - roles/bind/tasks
+    - roles/unbind/tasks
+    - playbooks
+- name: Get project namespace
+  command: oc project -q
+  register: current_project
+- set_fact:
+    namespace: "{{ current_project.stdout }}"
+- name: Get deploymentconfig
+  openshift_v1_deployment_config:
+    name: "{{ name }}"
+    namespace: "{{ namespace }}"
+  register: dc_export
+  when: "'deployment' in openshift_objects or 'dc' in openshift_objects or 'deploymentconfig' in openshift_objects"
+- name: copy dc to file
+  copy:
+    dest: "{{ provision_dc_file }}"
+    content: "{{ dc_export.deployment_config | to_nice_yaml(indent=2) }}"
+  when: "'deployment' in openshift_objects or 'dc' in openshift_objects or 'deploymentconfig' in openshift_objects"
+- name: Get service
+  k8s_v1_service:
+    name: "{{ name }}"
+    namespace: "{{ namespace }}"
+  register: service_export
+  when: "'service' in openshift_objects or 'svc' in openshift_objects"
+- name: copy svc to file
+  copy:
+    dest: "{{ provision_svc_file }}"
+    content: "{{ service_export.service | to_nice_yaml(indent=2) }}"
+  when: "'service' in openshift_objects or 'svc' in openshift_objects"
+- name: Get route 
+  openshift_v1_route:
+    name: "{{ name }}"
+    namespace: "{{ namespace }}"
+  register: route_export
+  when: "'route' or 'router' in openshift_objects"
+- name: copy route to file
+  copy:
+    dest: "{{ provision_route_file }}"
+    content: "{{ route_export.route | to_nice_yaml(indent=2) }}"
+  when: "'route' in openshift_objects or 'router' in openshift_objects"
+- set_fact:
+    provision_deploymentconfig: "{{ deployment_module }}"
+  when: "'deployment' in openshift_objects or 'dc' in openshift_objects or 'deploymentconfig' in openshift_objects"
+- set_fact:
+    deprovision_deploymentconfig: "{{ remove_deployment_module }}"
+  when: "'deployment' in openshift_objects or 'dc' in openshift_objects or 'deploymentconfig' in openshift_objects"
+- set_fact:
+    provision_service: "{{ service_module }}"
+  when: "'service' in openshift_objects or 'svc' in openshift_objects"
+- set_fact:
+    deprovision_service: "{{ remove_service_module }}"
+  when: "'service' in openshift_objects or 'svc' in openshift_objects"
+- set_fact:
+    provision_route: "{{ route_module }}"
+  when: "'route' in openshift_objects or 'router' in openshift_objects"
+- set_fact:
+    deprovision_route: "{{ remove_route_module }}"
+  when: "'route' in openshift_objects or 'router' in openshift_objects"
+- name: Get template
+  openshift_v1_template:
+    name: "{{ template_name }}"
+    namespace: "{{ template_namespace }}"
+  register: template_export
+  when: "'template' in openshift_objects"
+- name: set template metadata
+  set_fact:
+    description: "{{ template_export.template.metadata.annotations['template.openshift.io/long-description'] }}"
+  when: template_export is defined
+  ignore_errors: True
+
+#{{ provision_encode_bindcreds }}

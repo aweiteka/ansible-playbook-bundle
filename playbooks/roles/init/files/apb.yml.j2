@@ -1,0 +1,27 @@
+---
+name: {{ name }}
+image: {{ image }}
+description: {{ description }}
+bindable: {{ bindable }}
+async: {{ async }}
+metadata:
+{% if template_export is defined %}
+  documentationUrl: {{ template_export.template.metadata.annotations['template.openshift.io/support-url'] }}
+  displayName: {{ template_export.template.metadata.annotations['openshift.io/display-name'] }}
+  console.openshift.io/iconClass: {{ template_export.template.metadata.annotations.iconClass }}
+  longDescription: {{ template_export.template.metadata.annotations['template.openshift.io/long-description'] }}
+{% endif %}
+plans:
+  - name: default
+    description: This default plan deploys {{ name }}
+    free: true
+    metadata: {}
+    parameters:
+{% if template_export is defined %}
+  {% for param in template_export.template.parameters %}
+    - name: {{ param.name }}
+        default: {{ param.value }}
+        title: {{ param.description }}
+        type: string
+  {% endfor %}
+{% endif %}

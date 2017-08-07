@@ -1,0 +1,15 @@
+remove_deployment_module: |
+        - name: {{ name }}
+          openshift_v1_deployment_config:
+            namespace: {{ namespace }}
+            state: absent
+remove_service_module: |
+        - name: {{ name }}
+          k8s_v1_service:
+            namespace: {{ namespace }}
+            state: absent
+remove_route_module: |
+        - name: {{ name }}
+          openshift_v1_route:
+            namespace: {{ namespace }}
+            state: absent

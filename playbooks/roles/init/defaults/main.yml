@@ -1,0 +1,20 @@
+image: "{{ name }}/{{ namespace }}"
+version: v0.1
+description: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+# APB can be bound to
+bindable: "false"
+# APB support async
+async: "true"
+# Where to install files
+project_dir: "{{ lookup('env','PWD') }}"
+overwrite_existing_files: no
+default_params: []
+
+###
+# openshift test environment
+###
+openshift_test_registry_url: docker-registry.default.svc.cluster.local
+openshift_test_user: developer
+openshift_test_pass: developer
+
+
